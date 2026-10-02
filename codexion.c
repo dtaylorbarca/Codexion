@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/09 12:23:13 by dtaylor-          #+#    #+#             */
-/*   Updated: 2026/09/09 12:23:14 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/09/30 15:51:56 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,6 @@ static void	init_coders(t_thread_data *coders, t_data *data)
 		coders[i].id = i + 1;
 		coders[i].data = data;
 		coders[i].last_compile_start = get_time();
-		data->deadlines[i] = coders[i].last_compile_start
-			+ data->time_to_burnout;
 		coders[i].times_compiled = 0;
 		pthread_mutex_init(&coders[i].mutex_coder, NULL);
 		i++;
@@ -34,7 +32,7 @@ static int	start_threads(t_thread_data *coders, t_data *data)
 {
 	int	i;
 
-	if (pthread_create(&data->thread_id, NULL, &monitor, (void *)coders) != 0)
+	if (pthread_create(&data->monitor_thread, NULL, &monitor, (void *)coders) != 0)
 	{
 		printf("Failed to create thread");
 		return (0);
@@ -63,7 +61,7 @@ static void	cleanup_all(t_thread_data *coders, t_data *data)
 		pthread_join(coders[i].thread_id, NULL);
 		i++;
 	}
-	pthread_join(data->thread_id, NULL);
+	pthread_join(data->monitor_thread, NULL);
 	i = 0;
 	while (i < data->num_coders)
 	{

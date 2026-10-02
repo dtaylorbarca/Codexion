@@ -6,63 +6,65 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 17:08:02 by dtaylor-          #+#    #+#             */
-/*   Updated: 2026/09/08 17:48:14 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:15:41 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-int	do_coder_actions(t_thread_data *coder, t_data *data,
-		int left, int right)
+static int	do_coder_actions(t_thread_data *coder, t_data *data)
 {
 	pthread_mutex_lock(&data->mutex_data);
 	if (data->simulation_over)
 	{
-		data->dongles[left] = -1;
-		data->dongles[right] = -1;
-		data->deadlines[coder->id - 1] = -1;
-		pthread_cond_broadcast(&data->condition);
 		pthread_mutex_unlock(&data->mutex_data);
 		return (1);
 	}
 	printf("%lld %d is compiling\n", get_time() - data->start_time, coder->id);
 	pthread_mutex_unlock(&data->mutex_data);
+    precise_sleep(data->time_to_compile, data);
 	pthread_mutex_lock(&coder->mutex_coder);
-	coder->last_compile_start = get_time();
 	coder->times_compiled++;
 	pthread_mutex_unlock(&coder->mutex_coder);
-	if (!strcmp("edf", data->scheduler))
-	{
-		pthread_mutex_lock(&data->mutex_data);
-		data->deadlines[coder->id - 1] = coder->last_compile_start
-			+ data->time_to_burnout;
-		pthread_mutex_unlock(&data->mutex_data);
-	}
 	return (0);
 }
 
-int	do_rest_of_routine(t_thread_data *coder, t_data *data,
+static int	release_and_debug(t_thread_data *coder, t_data *data,
 		int left, int right)
 {
-	usleep(data->time_to_compile * 1000);
 	pthread_mutex_lock(&data->mutex_data);
 	data->dongles[left] = -1;
 	data->dongles[right] = -1;
 	data->cooldown[left] = get_time();
 	data->cooldown[right] = get_time();
+	check_and_mark_completion(coder, data);
 	pthread_cond_broadcast(&data->condition);
 	if (data->simulation_over)
-		return (pthread_mutex_unlock(&data->mutex_data), 1);
+	{
+		pthread_mutex_unlock(&data->mutex_data);
+		return (1);
+	}
 	printf("%lld %d is debugging\n", get_time() - data->start_time, coder->id);
 	pthread_mutex_unlock(&data->mutex_data);
-	usleep(data->time_to_debug * 1000);
+	precise_sleep(data->time_to_debug, data);
+	return (0);
+}
+
+static int	do_rest_of_routine(t_thread_data *coder, t_data *data,
+		int left, int right)
+{
+	if (release_and_debug(coder, data, left, right))
+		return (1);
 	pthread_mutex_lock(&data->mutex_data);
 	if (data->simulation_over)
-		return (pthread_mutex_unlock(&data->mutex_data), 1);
+	{
+		pthread_mutex_unlock(&data->mutex_data);
+		return (1);
+	}
 	printf("%lld %d is refactoring\n",
 		get_time() - data->start_time, coder->id);
 	pthread_mutex_unlock(&data->mutex_data);
-	usleep(data->time_to_refactor * 1000);
+	precise_sleep(data->time_to_refactor, data);
 	return (0);
 }
 
@@ -76,7 +78,7 @@ static int	run_routine_step(t_thread_data *coder, t_data *data,
 		res = try_acquire_dongles(coder, data, left, right);
 	if (res == -1)
 		return (1);
-	if (do_coder_actions(coder, data, left, right))
+	if (do_coder_actions(coder, data))
 		return (1);
 	if (do_rest_of_routine(coder, data, left, right))
 		return (1);

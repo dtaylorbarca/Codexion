@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 17:08:29 by dtaylor-          #+#    #+#             */
-/*   Updated: 2026/09/08 17:08:30 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/09/28 16:58:18 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,13 +44,14 @@ static int	alloc_data_buffers(t_data **data)
 	if (!(*data)->queue)
 		return (0);
 	memset((*data)->queue, -1, (*data)->num_coders * sizeof(int));
-	(*data)->deadlines = malloc((*data)->num_coders * sizeof(long long) + 1);
-	if (!(*data)->deadlines)
-		return (0);
 	(*data)->cooldown = malloc((*data)->num_coders * sizeof(long long) + 1);
 	if (!(*data)->cooldown)
 		return (0);
 	memset((*data)->cooldown, 0, (*data)->num_coders * sizeof(long long));
+	(*data)->heap = malloc(sizeof(t_thread_data *) * (*data)->num_coders);
+	if (!(*data)->heap)
+		return (0);
+	memset((*data)->heap, 0, (*data)->num_coders * sizeof(t_thread_data *));
 	return (1);
 }
 
@@ -81,6 +82,6 @@ void	free_data(t_data **data)
 {
 	free((*data)->dongles);
 	free((*data)->queue);
-	free((*data)->deadlines);
 	free((*data)->cooldown);
+	free((*data)->heap);
 }
