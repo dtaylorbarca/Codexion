@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/12 18:21:21 by username          #+#    #+#             */
-/*   Updated: 2026/09/30 16:49:34 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/07 13:53:21 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ typedef struct s_data
 	long long		start_time;
 	int				*dongles;
 	int				*queue;
-	int				threads_done;
 	long long		*cooldown;
 	int				heap_size;
 	t_thread_data	**heap;
@@ -68,14 +67,19 @@ void		remove_from_queue(t_thread_data **coder);
 int			in_queue(t_thread_data **coder);
 void		get_target_time(struct timespec *ts, long long ms_to_wait);
 void		precise_sleep(long long duration, t_data *data);
-void		check_and_mark_completion(t_thread_data *coder, t_data *data);
 long long	get_deadline(t_thread_data *coder);
+void		take_dongles(t_thread_data *coder, t_data *data, int left,
+				int right);
+int			fifo_blocked(t_data *data, t_thread_data *coder);
+int			edf_blocked(t_data *data, t_thread_data *coder);
 
 /* Heap Utility */
 
 void		heap_push(t_thread_data *coder, t_data *data);
-void		heap_pop(t_data *data);
 int			is_in_heap(t_thread_data *coder, t_data *data);
+void		heap_remove(t_thread_data *coder, t_data *data);
+void		sift_up(t_data *data, int i);
+void		sift_down(t_data *data, int i);
 
 /* Scheduer & Acquiring */
 
@@ -94,5 +98,6 @@ void		*monitor(void *arg);
 
 int			data_setup(t_data **data, char **argv);
 void		free_data(t_data **data);
+void		init_queue(t_data *data);
 
 #endif

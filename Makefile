@@ -9,7 +9,9 @@ SRCS      := codexion.c \
              scheduler.c \
 			 utils_1.c \
 			 utils_2.c \
-			 heap_utils.c
+			 utils_3.c \
+			 heap_utils.c \
+			 heap.c
 
 OBJS      := $(SRCS:.c=.o)
 

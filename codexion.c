@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/09 12:23:13 by dtaylor-          #+#    #+#             */
-/*   Updated: 2026/09/30 15:51:56 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/07 13:53:51 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,8 @@ static int	start_threads(t_thread_data *coders, t_data *data)
 {
 	int	i;
 
-	if (pthread_create(&data->monitor_thread, NULL, &monitor, (void *)coders) != 0)
+	if (pthread_create(&data->monitor_thread, NULL, &monitor,
+			(void *)coders) != 0)
 	{
 		printf("Failed to create thread");
 		return (0);
@@ -88,6 +89,7 @@ int	main(int argc, char **argv)
 	memset(data, 0, sizeof(t_data));
 	if (!data_setup(&data, argv))
 		return (printf("Syntax error"), 1);
+	init_queue(data);
 	coders = (t_thread_data *)malloc(data->num_coders * sizeof(t_thread_data));
 	if (!coders)
 		return (1);

@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/12 18:21:24 by username          #+#    #+#             */
-/*   Updated: 2026/09/08 17:31:29 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/07 12:44:17 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,10 +79,13 @@ void	remove_from_queue(t_thread_data **coder)
 	i = 0;
 	data = (*coder)->data;
 	queue = data->queue;
+	while (i < data->num_coders && queue[i] != (*coder)->id)
+		i++;
 	while (i + 1 < data->num_coders)
 	{
 		queue[i] = queue[i + 1];
 		i++;
 	}
-	queue[i] = -1;
+	if (i < data->num_coders)
+		queue[i] = -1;
 }

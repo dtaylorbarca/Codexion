@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 17:08:00 by dtaylor-          #+#    #+#             */
-/*   Updated: 2026/09/30 17:14:47 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/07 13:46:41 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,57 +15,68 @@
 static int	check_threads_done(t_thread_data *coders, t_data *data)
 {
 	int	j;
+	int	done;
 
 	j = 0;
-	data->threads_done = 0;
+	done = 0;
 	pthread_mutex_lock(&data->mutex_data);
 	while (j < data->num_coders)
 	{
 		if (coders[j].times_compiled >= data->number_of_compiles_required)
-			data->threads_done++;
+			done++;
 		j++;
 	}
-	if (data->threads_done == data->num_coders)
+	if (done == data->num_coders)
 	{
 		data->simulation_over = 1;
-		return (1);
+		pthread_cond_broadcast(&data->condition);
 	}
 	pthread_mutex_unlock(&data->mutex_data);
-	return (0);
+	return (done == data->num_coders);
 }
 
-static int  check_burnout(t_thread_data *coders, t_data *data)
+static int	burnout_found(t_thread_data *coder, t_data *data)
 {
-    int i;
+	if (data->number_of_compiles_required > 0
+		&& coder->times_compiled >= data->number_of_compiles_required)
+		return (0);
+	return (get_time() - coder->last_compile_start >= data->time_to_burnout);
+}
 
-    i = 0;
-    while (i < data->num_coders)
-    {
-        pthread_mutex_lock(&data->mutex_data);
-        pthread_mutex_lock(&coders[i].mutex_coder);
-        if (data->number_of_compiles_required > 0 
-            && coders[i].times_compiled >= data->number_of_compiles_required)
-        {
-            pthread_mutex_unlock(&coders[i].mutex_coder);
-            pthread_mutex_unlock(&data->mutex_data);
-            i++;
-            continue ;
-        }
-        if (get_time() - coders[i].last_compile_start >= data->time_to_burnout)
-        {
-            data->simulation_over = 1;
-            pthread_cond_broadcast(&data->condition);
-            printf("%lld %d burned out\n",
-                get_time() - data->start_time, coders[i].id);
-            pthread_mutex_unlock(&coders[i].mutex_coder);
-            pthread_mutex_unlock(&data->mutex_data);
-            return (1);
-        }
-        pthread_mutex_unlock(&coders[i].mutex_coder);
-        pthread_mutex_unlock(&data->mutex_data);
-        i++;
-    }
-    return (0);
+static int	check_one(t_thread_data *coder, t_data *data)
+{
+	int	res;
+
+	res = 0;
+	pthread_mutex_lock(&data->mutex_data);
+	pthread_mutex_lock(&coder->mutex_coder);
+	if (data->simulation_over)
+		res = 1;
+	else if (burnout_found(coder, data))
+	{
+		data->simulation_over = 1;
+		pthread_cond_broadcast(&data->condition);
+		printf("%lld %d burned out\n",
+			get_time() - data->start_time, coder->id);
+		res = 1;
+	}
+	pthread_mutex_unlock(&coder->mutex_coder);
+	pthread_mutex_unlock(&data->mutex_data);
+	return (res);
+}
+
+static int	check_burnout(t_thread_data *coders, t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (i < data->num_coders)
+	{
+		if (check_one(&coders[i], data))
+			return (1);
+		i++;
+	}
+	return (0);
 }
 
 void	*monitor(void *arg)
@@ -77,6 +88,10 @@ void	*monitor(void *arg)
 	data = coders[0].data;
 	while (1)
 	{
+		pthread_mutex_lock(&data->mutex_data);
+		if (data->simulation_over)
+			return (pthread_mutex_unlock(&data->mutex_data), NULL);
+		pthread_mutex_unlock(&data->mutex_data);
 		if (check_threads_done(coders, data))
 			return (NULL);
 		if (check_burnout(coders, data))

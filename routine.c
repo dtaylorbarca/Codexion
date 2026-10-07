@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 17:08:02 by dtaylor-          #+#    #+#             */
-/*   Updated: 2026/09/30 17:15:41 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/07 13:04:48 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,22 +22,19 @@ static int	do_coder_actions(t_thread_data *coder, t_data *data)
 	}
 	printf("%lld %d is compiling\n", get_time() - data->start_time, coder->id);
 	pthread_mutex_unlock(&data->mutex_data);
-    precise_sleep(data->time_to_compile, data);
-	pthread_mutex_lock(&coder->mutex_coder);
-	coder->times_compiled++;
-	pthread_mutex_unlock(&coder->mutex_coder);
 	return (0);
 }
 
 static int	release_and_debug(t_thread_data *coder, t_data *data,
 		int left, int right)
 {
+	precise_sleep(data->time_to_compile, data);
 	pthread_mutex_lock(&data->mutex_data);
 	data->dongles[left] = -1;
 	data->dongles[right] = -1;
 	data->cooldown[left] = get_time();
 	data->cooldown[right] = get_time();
-	check_and_mark_completion(coder, data);
+	coder->times_compiled++;
 	pthread_cond_broadcast(&data->condition);
 	if (data->simulation_over)
 	{
