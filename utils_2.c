@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/22 17:14:16 by dtaylor-          #+#    #+#             */
-/*   Updated: 2026/10/07 14:04:28 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/15 13:37:35 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,12 +61,4 @@ void	take_dongles(t_thread_data *coder, t_data *data, int left, int right)
 	pthread_mutex_unlock(&coder->mutex_coder);
 	printf("%lld %d has taken a dongle\n", now - data->start_time, coder->id);
 	printf("%lld %d has taken a dongle\n", now - data->start_time, coder->id);
-}
-
-static int	is_neighbor(t_data *data, int a, int b)
-{
-	if (a == b)
-		return (0);
-	return (b == a % data->num_coders + 1
-		|| a == b % data->num_coders + 1);
 }
