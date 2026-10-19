@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 17:07:29 by dtaylor-          #+#    #+#             */
-/*   Updated: 2026/10/07 13:55:45 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/16 17:59:17 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,20 +30,24 @@ static int	are_dongles_available(t_data *data, int left, int right)
 	return (left_ok && right_ok);
 }
 
-static int	acquire_dongles_fifo(t_thread_data *coder, t_data *data,
-		int left, int right)
+static int  acquire_dongles_fifo(t_thread_data *coder, t_data *data,
+        int left, int right)
 {
-	if (!in_queue(&coder))
-		add_to_queue(&coder);
-	if (!fifo_blocked(data, coder)
-		&& are_dongles_available(data, left, right))
-	{
-		remove_from_queue(&coder);
-		take_dongles(coder, data, left, right);
-		pthread_cond_broadcast(&data->condition);
-		return (1);
-	}
-	return (0);
+    if (coder->times_compiled >= data->number_of_compiles_required)
+        return (0);
+    if (!in_queue(&coder))
+        add_to_queue(&coder);
+    if (data->queue[0] == coder->id)
+    {
+        if (are_dongles_available(data, left, right))
+        {
+            remove_from_queue(&coder);
+            take_dongles(coder, data, left, right);
+            pthread_cond_broadcast(&data->condition);
+            return (1);
+        }
+    }
+    return (0);
 }
 
 static int	acquire_dongles_edf(t_thread_data *coder, t_data *data,

@@ -6,11 +6,11 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/07 14:04:15 by dtaylor-          #+#    #+#             */
-/*   Updated: 2026/10/15 13:37:23 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/16 17:22:50 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <codexion.h>
+#include "codexion.h"
 
 static int	is_neighbor(t_data *data, int a, int b)
 {
@@ -22,8 +22,8 @@ static int	is_neighbor(t_data *data, int a, int b)
 
 int	fifo_blocked(t_data *data, t_thread_data *coder)
 {
+    
 	int	i;
-
 	i = 0;
 	while (data->queue[i] != -1 && data->queue[i] != coder->id)
 	{

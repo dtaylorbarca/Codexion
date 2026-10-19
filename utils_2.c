@@ -6,11 +6,11 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/22 17:14:16 by dtaylor-          #+#    #+#             */
-/*   Updated: 2026/10/15 13:37:35 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/16 18:06:24 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <codexion.h>
+#include "codexion.h"
 
 void	get_target_time(struct timespec *ts, long long ms_to_wait)
 {
@@ -51,14 +51,14 @@ long long	get_deadline(t_thread_data *coder)
 
 void	take_dongles(t_thread_data *coder, t_data *data, int left, int right)
 {
-	long long	now;
+	long long	time;
 
 	data->dongles[left] = coder->id;
 	data->dongles[right] = coder->id;
-	now = get_time();
+	time = get_time();
 	pthread_mutex_lock(&coder->mutex_coder);
-	coder->last_compile_start = now;
+	coder->last_compile_start = time;
 	pthread_mutex_unlock(&coder->mutex_coder);
-	printf("%lld %d has taken a dongle\n", now - data->start_time, coder->id);
-	printf("%lld %d has taken a dongle\n", now - data->start_time, coder->id);
+	printf("%lld %d has taken a dongle\n", time - data->start_time, coder->id);
+	printf("%lld %d has taken a dongle\n", time - data->start_time, coder->id);
 }
