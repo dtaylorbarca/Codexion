@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 17:07:29 by dtaylor-          #+#    #+#             */
-/*   Updated: 2026/10/16 17:59:17 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/20 11:56:00 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,15 +37,13 @@ static int  acquire_dongles_fifo(t_thread_data *coder, t_data *data,
         return (0);
     if (!in_queue(&coder))
         add_to_queue(&coder);
-    if (data->queue[0] == coder->id)
+    if (data->queue[0] == coder->id &&
+        are_dongles_available(data, left, right))
     {
-        if (are_dongles_available(data, left, right))
-        {
-            remove_from_queue(&coder);
-            take_dongles(coder, data, left, right);
-            pthread_cond_broadcast(&data->condition);
-            return (1);
-        }
+        take_dongles(coder, data, left, right);
+        remove_from_queue(&coder);
+        pthread_cond_broadcast(&data->condition);
+        return (1);
     }
     return (0);
 }

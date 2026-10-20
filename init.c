@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 17:08:29 by dtaylor-          #+#    #+#             */
-/*   Updated: 2026/10/07 14:01:19 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/20 11:55:20 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,28 +75,6 @@ int	data_setup(t_data **data, char **argv)
 	(*data)->scheduler = argv[8];
 	(*data)->simulation_over = 0;
 	return (alloc_data_buffers(data));
-}
-
-void	init_queue(t_data *data)
-{
-	int	i;
-	int	k;
-
-	k = 0;
-	i = 1;
-	while (i <= data->num_coders)
-	{
-		data->queue[k] = i;
-		k++;
-		i += 2;
-	}
-	i = 2;
-	while (i <= data->num_coders)
-	{
-		data->queue[k] = i;
-		k++;
-		i += 2;
-	}
 }
 
 void	free_data(t_data **data)

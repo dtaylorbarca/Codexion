@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/12 18:21:24 by username          #+#    #+#             */
-/*   Updated: 2026/10/16 18:26:57 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/20 11:56:10 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ int	in_queue(t_thread_data **coder)
 	id = (*coder)->id;
 	data = (*coder)->data;
 	queue = data->queue;
+    i = 0;
 	while (i < data->num_coders)
 	{
 		if (queue[i] == id)

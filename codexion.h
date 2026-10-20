@@ -6,7 +6,7 @@
 /*   By: dtaylor- <dtaylor-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/12 18:21:21 by username          #+#    #+#             */
-/*   Updated: 2026/10/07 13:53:21 by dtaylor-         ###   ########.fr       */
+/*   Updated: 2026/10/20 11:55:11 by dtaylor-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,5 @@ void		*monitor(void *arg);
 
 int			data_setup(t_data **data, char **argv);
 void		free_data(t_data **data);
-void		init_queue(t_data *data);
 
 #endif
