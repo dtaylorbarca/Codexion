@@ -1,5 +1,5 @@
 CC        := cc
-CFLAGS    := -Wall -Wextra -Werror -pthread -pthread
+CFLAGS    := -Wall -Wextra -Werror -pthread
 NAME      := codexion
 
 SRCS      := codexion.c \
